@@ -1,0 +1,17 @@
+<module>
+	<inherits name='com.google.gwt.user.User' />
+	<inherits name='com.extjs.gxt.ui.GXT' />
+	<inherits name='gxt.multiupload.MultiUpload'/>
+	
+	<entry-point class="gxt.multiupload.demo.gwt.client.DemoEntryPoint" />
+	
+	<!-- Uncomment your testing browser to speed-up gwt-compilation -->
+	<!-- <set-property name="user.agent" value="ie6" /> -->
+	<!-- <set-property name="user.agent" value="ie8" /> -->
+	<!-- <set-property name="user.agent" value="opera" /> -->
+	<!-- <set-property name="user.agent" value="gecko" /> -->
+	<!-- <set-property name="user.agent" value="gecko1_8" />-->
+	<!-- <set-property name="user.agent" value="safari" />-->
+	
+	<source path="gxt/multiupload/demo/gwt/client" />
+</module>
