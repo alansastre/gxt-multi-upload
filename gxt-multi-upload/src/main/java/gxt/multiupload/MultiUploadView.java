@@ -64,20 +64,6 @@ public class MultiUploadView extends Window implements MultiUploadPresenter.Disp
 		add(createFormPanel());
 		add(createFilePanel());
 	}
-
-	private FormPanel createFormPanel() {
-		formPanel = new UploadFormPanel();
-		formPanel.setMethod(FormPanel.METHOD_POST);
-		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
-		formPanel.setVisible(false);
-		return formPanel;
-	}
-
-	private AbsolutePanel createFilePanel() {
-		filePanel = new FileStackPanel();
-		filePanel.setVisible(false);
-		return filePanel;
-	}
 	
 	public FileUploadModel parseModel(String json) {
 		JSONObject jsonObject = (JSONObject) JSONParser.parseLenient(json);
@@ -86,78 +72,14 @@ public class MultiUploadView extends Window implements MultiUploadPresenter.Disp
 		String message = getPropertyValue(jsonObject, FileUploadModel.MESSAGE);
 		return new FileUploadModel(name, UploadState.valueOf(state), message);
 	}
-
-	private String getPropertyValue(JSONObject object, String property) {
-		JSONString state = (JSONString) object.get(property);
-		return state.stringValue();
-	}
-
-	private ToolBar createToolbar() {
-		toolBar = new ToolBar();
-		toolBar.setBorders(false);
-		toolBar.add(createAddButton());
-		toolBar.add(createRemoveButton());
-		toolBar.add(createUploadButton());
-		return toolBar;
-	}
-
-	private FileUploadField createAddButton() {
-		addButton = new FileUploadField();
-		addButton.setName("file");
-		addButton.setWidth(ADD_BUTTON_WIDTH);
-		addButton.setButtonIcon(UploadIcons.INSTANCE.add());
-		addButton.setInputStyleAttribute("display", "none");
-		addButton.addListener(Events.OnChange, addClickListener);
-		return addButton;
-	}
-
+	
 	public void exchangeAddButton() {
 		FileUploadField oldAddButton = addButton;
 		addButton.removeFromParent();
 		toolBar.insert(createAddButton(), 0);
 		filePanel.addFileInput(oldAddButton.getFileInput());
 	}
-
-	private void addGridListeners() {
-		grid.addListener(Events.RowClick, createClickListener());
-		grid.getStore().addStoreListener(new StoreListener<Model>() {
-			@Override
-			public void storeAdd(StoreEvent<Model> se) {
-				uploadButton.enable();
-			}
-			@Override
-			public void storeRemove(StoreEvent<Model> se) {
-				removeButton.disable();
-				if (grid.getStore().getCount() == 0) {
-					uploadButton.disable();
-				}
-			}
-		});
-	}
-
-	private Listener<GridEvent<BeanModel>> createClickListener() {
-		return new Listener<GridEvent<BeanModel>>() {
-			@Override
-			public void handleEvent(final GridEvent<BeanModel> be) {
-				removeButton.enable();
-			}
-		};
-	}
-
-	private Button createRemoveButton() {
-		removeButton = new Button(UploadConstants.INSTANCE.remove());
-		removeButton.setIcon(UploadIcons.INSTANCE.delete());
-		removeButton.disable();
-		return removeButton;
-	}
-
-	private Button createUploadButton() {
-		uploadButton = new Button(UploadConstants.INSTANCE.upload());
-		uploadButton.setIcon(UploadIcons.INSTANCE.upload());
-		uploadButton.disable();
-		return uploadButton;
-	}
-
+	
 	public void upload() {
 		uploadButton.disable();
 		Node firstChild = filePanel.getElement().getFirstChild();
@@ -168,13 +90,7 @@ public class MultiUploadView extends Window implements MultiUploadPresenter.Disp
 			updateModelState(MultiUploadUtils.removeFilePath(input.getValue()), UploadState.UPLOADING);
 		}
 	}
-
-	private void updateModelState(String fileName, UploadState state) {
-		Model model = findModel(fileName);
-		model.setState(state);
-		model.setMessage(state.getLabel());
-	}
-
+	
 	public void setAccept(String accept) {
 		addButton.setAccept(accept);
 	}
@@ -228,6 +144,90 @@ public class MultiUploadView extends Window implements MultiUploadPresenter.Disp
 	@Override
 	public FormPanelDecorator getFormPanel() {
 		return formPanel;
+	}
+
+	private FormPanel createFormPanel() {
+		formPanel = new UploadFormPanel();
+		formPanel.setMethod(FormPanel.METHOD_POST);
+		formPanel.setEncoding(FormPanel.ENCODING_MULTIPART);
+		formPanel.setVisible(false);
+		return formPanel;
+	}
+
+	private AbsolutePanel createFilePanel() {
+		filePanel = new FileStackPanel();
+		filePanel.setVisible(false);
+		return filePanel;
+	}
+
+	private String getPropertyValue(JSONObject object, String property) {
+		JSONString state = (JSONString) object.get(property);
+		return state.stringValue();
+	}
+
+	private ToolBar createToolbar() {
+		toolBar = new ToolBar();
+		toolBar.setBorders(false);
+		toolBar.add(createAddButton());
+		toolBar.add(createRemoveButton());
+		toolBar.add(createUploadButton());
+		return toolBar;
+	}
+
+	private FileUploadField createAddButton() {
+		addButton = new FileUploadField();
+		addButton.setName("file");
+		addButton.setWidth(ADD_BUTTON_WIDTH);
+		addButton.setButtonIcon(UploadIcons.INSTANCE.add());
+		addButton.setInputStyleAttribute("display", "none");
+		addButton.addListener(Events.OnChange, addClickListener);
+		return addButton;
+	}
+
+	private void addGridListeners() {
+		grid.addListener(Events.RowClick, createClickListener());
+		grid.getStore().addStoreListener(new StoreListener<Model>() {
+			@Override
+			public void storeAdd(StoreEvent<Model> se) {
+				uploadButton.enable();
+			}
+			@Override
+			public void storeRemove(StoreEvent<Model> se) {
+				removeButton.disable();
+				if (grid.getStore().getCount() == 0) {
+					uploadButton.disable();
+				}
+			}
+		});
+	}
+
+	private Listener<GridEvent<BeanModel>> createClickListener() {
+		return new Listener<GridEvent<BeanModel>>() {
+			@Override
+			public void handleEvent(final GridEvent<BeanModel> be) {
+				removeButton.enable();
+			}
+		};
+	}
+
+	private Button createRemoveButton() {
+		removeButton = new Button(UploadConstants.INSTANCE.remove());
+		removeButton.setIcon(UploadIcons.INSTANCE.delete());
+		removeButton.disable();
+		return removeButton;
+	}
+
+	private Button createUploadButton() {
+		uploadButton = new Button(UploadConstants.INSTANCE.upload());
+		uploadButton.setIcon(UploadIcons.INSTANCE.upload());
+		uploadButton.disable();
+		return uploadButton;
+	}
+
+	private void updateModelState(String fileName, UploadState state) {
+		Model model = findModel(fileName);
+		model.setState(state);
+		model.setMessage(state.getLabel());
 	}
 
 }

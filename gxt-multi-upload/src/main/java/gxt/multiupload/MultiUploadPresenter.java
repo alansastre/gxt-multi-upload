@@ -55,7 +55,42 @@ public class MultiUploadPresenter implements Presenter {
 		this.display = display;
 	}
 	
+	public void addFileAddedListener(FileAddedListener listener) {
+		fileAddedListeners.add(listener);
+	}
+	
+	public void addFileBeforeSubmitListener(FileBeforeSubmitListener listener) {
+		fileBeforeSubmitListeners.add(listener);
+	}
+	
+	public void addFileUploadFailedListener(FileUploadFailedListener listener) {
+		fileUploadFailedListeners.add(listener);
+	}
+	
+	public void addFileUploadSucceedListener(FileUploadSucceedListener listener) {
+		fileUploadSucceedListeners.add(listener);
+	}
+	
+	@Override
+	public void go() {
+		bind();
+		display.show();
+	}
+	
+	protected Model assemblyModel(String name, UploadState state) {
+		FileUploadModel model = new FileUploadModel(name, state, state.getLabel());
+		return model;
+	}
+	
 	private void bind() {
+		bindAddButtonListener();	
+		bindRemoveButtonListener();	
+		bindUploadButtonListener();		
+		bindSubmitBeforeHandler();		
+		bindSubmitCompleteHandler();
+	}
+
+	private void bindAddButtonListener() {
 		Listener<FieldEvent> addButtonClickListener = new Listener<FieldEvent>() {
 			@Override
 			public void handleEvent(FieldEvent be) {
@@ -69,7 +104,9 @@ public class MultiUploadPresenter implements Presenter {
 			}
 		};
 		display.setAddButtonListener(addButtonClickListener);
-		
+	}
+
+	private void bindRemoveButtonListener() {
 		SelectionListener<ButtonEvent> removeButtonListener = new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -82,7 +119,9 @@ public class MultiUploadPresenter implements Presenter {
 			}
 		};
 		display.setRemoveButtonListener(removeButtonListener);
-		
+	}
+
+	private void bindUploadButtonListener() {
 		SelectionListener<ButtonEvent> uploadButtonListener = new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
@@ -90,31 +129,28 @@ public class MultiUploadPresenter implements Presenter {
 			}
 		};
 		display.setUploadButtonListener(uploadButtonListener);
-		
+	}
+
+	private void bindSubmitBeforeHandler() {
 		SubmitHandler submitHandler = new SubmitHandler() {
 			@Override
 			public void onSubmit(SubmitEvent event) {
 				notifyBeforeSubmitListener(MultiUploadUtils.removeFilePath(display.getFormPanel().getFilename()));
 			}
 		};
-//		display.setSubmitHandler(submitHandler);
 		display.getFormPanel().addSubmitHandler(submitHandler);
-		
+	}
+
+	private void bindSubmitCompleteHandler() {
 		SubmitCompleteHandler submitCompleteHandler = new SubmitCompleteHandler() {
 			@Override
 			public void onSubmitComplete(SubmitCompleteEvent event) {
 				processResult(event.getResults());
 			}
 		};
-//		display.setSubmitCompleteHandler(submitCompleteHandler);
 		display.getFormPanel().addSubmitCompleteHandler(submitCompleteHandler);
 	}
-	
-	protected Model assemblyModel(String name, UploadState state) {
-		FileUploadModel model = new FileUploadModel(name, state, state.getLabel());
-		return model;
-	}
-	
+
 	private void processResult(String json) {
 		Model model = display.parseModel(json);
 				
@@ -132,10 +168,6 @@ public class MultiUploadPresenter implements Presenter {
 		for (FileAddedListener listener : fileAddedListeners) {
 			listener.onFileAdded(filename);
 		}
-	}
-	
-	public void addFileAddedListener(FileAddedListener listener) {
-		fileAddedListeners.add(listener);
 	}
 
 	private void notifyListeners(Model model) {
@@ -162,24 +194,6 @@ public class MultiUploadPresenter implements Presenter {
 		for (FileUploadFailedListener listener : fileUploadFailedListeners) {
 			listener.onFileUploadFailed(filename);
 		}
-	}
-	
-	public void addFileBeforeSubmitListener(FileBeforeSubmitListener listener) {
-		fileBeforeSubmitListeners.add(listener);
-	}
-	
-	public void addFileUploadFailedListener(FileUploadFailedListener listener) {
-		fileUploadFailedListeners.add(listener);
-	}
-	
-	public void addFileUploadSucceedListener(FileUploadSucceedListener listener) {
-		fileUploadSucceedListeners.add(listener);
-	}
-	
-	@Override
-	public void go() {
-		bind();
-		display.show();
 	}
 
 }
